@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { Orders } from "./Orders";
 import { SessionProvider, useSession } from "../../context/AuthContext";
 import { getOrders } from "../../services/getOrders";
+import { getSummaryOrders } from "../../utils/sumamry";
 
 vi.mock('../../services/getOrders', () => ({
     getOrders: vi.fn()
@@ -76,6 +77,17 @@ describe('<Orders />', () => {
         await waitFor(() => {
             const orders = screen.getAllByRole('heading', { level: 3 })
             expect(orders).toHaveLength(mockOrders.length)
+        })
+    })
+
+    it('Debería mostrar seccion para superAdmins', async () => {
+        mockGetOrders.mockResolvedValue(mockOrders)
+        renderOrders('superadmin')
+
+        await waitFor(() => {
+            const { totalOrders } = getSummaryOrders(mockOrders)
+            const totalOrdersElement = screen.getByTestId("totalOrders").textContent
+            expect(totalOrdersElement).toBe(totalOrders.toString())
         })
     })
 })
